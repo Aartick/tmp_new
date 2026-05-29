@@ -14,43 +14,33 @@ export async function POST(req) {
     // Authenticate admin
     await getCurrentAdmin(req);
 
-    // Validate Cloudinary environment configuration
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      return NextResponse.json({
-        detail: "Cloudinary credentials are missing. Please configure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your .env file."
-      }, { status: 500 });
-    }
-    
-    // Parse FormData
-    const formData = await req.formData();
-    const name = formData.get("name");
-    const file = formData.get("file");
+    // Parse JSON body — the image is already uploaded to Cloudinary
+    // via the /api/admin/upload endpoint; we receive { name, logo } here.
+    const body = await req.json();
+    const { name, logo } = body;
 
-    if (!name || !file) {
-      return NextResponse.json({ detail: "Brand name and logo file are required" }, { status: 400 });
+    if (!name || !logo) {
+      return NextResponse.json({ detail: "Brand name and logo URL are required" }, { status: 400 });
     }
 
-    // Convert file to buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Upload to Cloudinary using upload_stream
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: "brand-logos" },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      ).end(buffer);
-    });
+    // Extract public_id from logo URL if it is a Cloudinary URL to support clean deletion
+    let cloudinary_public_id = null;
+    if (logo && logo.includes("res.cloudinary.com")) {
+      const parts = logo.split("/");
+      const tmpUploadsIndex = parts.indexOf("tmp-uploads");
+      if (tmpUploadsIndex !== -1 && tmpUploadsIndex < parts.length - 1) {
+        const fileWithExt = parts[parts.length - 1];
+        const filename = fileWithExt.split(".")[0];
+        cloudinary_public_id = `tmp-uploads/${filename}`;
+      }
+    }
 
     const db = await getDb();
     const newBrand = {
       id: crypto.randomUUID(),
       name: name,
-      logo: uploadResult.secure_url,
-      cloudinary_public_id: uploadResult.public_id,
+      logo: logo,
+      cloudinary_public_id: cloudinary_public_id,
       created_at: new Date().toISOString(),
     };
 
