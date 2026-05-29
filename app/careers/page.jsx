@@ -1,26 +1,43 @@
-"use client";
-import { useState } from "react";
-import axios from "axios";
-import { CheckCircle2, ArrowRight, MapPin, Briefcase, Zap, BookOpen, TrendingUp, Mail } from "lucide-react";
-import { CAREERS, CAREER_CULTURE, SITE } from "../../src/data";
+import React from "react";
+import { Zap, BookOpen, TrendingUp } from "lucide-react";
+import { CAREERS, CAREER_CULTURE } from "../../src/data";
+import { getDb } from "@/lib/mongodb";
+import CareersApplicationForm from "@/components/CareersApplicationForm";
 
-const API = `/api`;
+export const metadata = {
+  title: "Careers at The Marketplace Peeps | Join the Team",
+  description: "We're a small, high-leverage team scaling India's top D2C brands. Own outcomes, not tickets. Explore open roles and apply.",
+};
+
 const CULTURE_ICONS = [TrendingUp, BookOpen, Zap];
 
-export default function Careers() {
-  const [selectedRole, setSelectedRole] = useState(CAREERS[0].title);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", role: CAREERS[0].title, portfolio: "", message: "" });
-  const [done, setDone] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+export default async function Careers() {
+  let dbOpenings = [];
+  try {
+    const db = await getDb();
+    dbOpenings = await db.collection("career_openings")
+      .find({ published: true }, { projection: { _id: 0 } })
+      .sort({ created_at: -1 })
+      .toArray();
+  } catch (err) {
+    console.error("Failed to fetch career openings in SSR:", err);
+  }
 
-  const submit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      await axios.post(`${API}/careers/apply`, { ...form, role: selectedRole });
-      setDone(true);
-    } catch {} finally { setSubmitting(false); }
-  };
+  // Merge dynamic + static, dynamic takes precedence
+  const allRoles = [...dbOpenings];
+  const dynamicSlugs = new Set(dbOpenings.map(o => o.slug));
+  CAREERS.forEach(staticRole => {
+    if (!dynamicSlugs.has(staticRole.slug)) {
+      allRoles.push({
+        title: staticRole.title,
+        slug: staticRole.slug,
+        location: staticRole.location,
+        type: staticRole.type,
+        description: staticRole.desc,
+        published: true,
+      });
+    }
+  });
 
   return (
     <div className="pt-28 lg:pt-32" data-testid="careers-page">
@@ -57,55 +74,8 @@ export default function Careers() {
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="container-tmp">
-          <p className="tmp-label">Open Roles</p>
-          <h2 className="mt-3 text-3xl lg:text-4xl font-medium tracking-[-0.03em] text-white">On-site positions only — be in the room where the work happens.</h2>
-          <div className="mt-10 grid md:grid-cols-2 gap-6">
-            {CAREERS.map(r => (
-              <button
-                key={r.slug}
-                onClick={() => { setSelectedRole(r.title); setForm(f => ({...f, role: r.title})); }}
-                className={`text-left p-7 rounded-2xl border transition ${selectedRole === r.title ? "border-[#FF5A1F] bg-[#FF5A1F]/10" : "border-[#1a1a1a] bg-[#0a0a0a] hover:border-[#27272a]"}`}
-                data-testid={`role-${r.slug}`}
-              >
-                <h3 className="text-2xl font-medium tracking-tight text-white">{r.title}</h3>
-                <div className="mt-3 flex flex-wrap gap-3 text-xs mono uppercase tracking-[0.18em] text-zinc-400">
-                  <span className="inline-flex items-center gap-1"><MapPin size={12} />{r.location}</span>
-                  <span className="inline-flex items-center gap-1"><Briefcase size={12} />{r.type}</span>
-                </div>
-                <p className="mt-4 text-sm text-zinc-400">{r.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 border-t border-[#1a1a1a]">
-        <div className="container-tmp max-w-2xl">
-          <p className="tmp-label">Apply Now</p>
-          <h2 className="mt-3 text-3xl lg:text-4xl font-medium tracking-tight text-white">Pitch us in 2 minutes.</h2>
-          <p className="mt-3 text-zinc-400">Applying for: <strong className="text-[#FF5A1F]">{selectedRole}</strong></p>
-          <p className="mt-1 text-sm text-zinc-500 inline-flex items-center gap-2"><Mail size={12} /> Or write directly to <a href={`mailto:${SITE.email}`} className="text-zinc-300 hover:text-[#FF5A1F]">{SITE.email}</a></p>
-
-          {!done ? (
-            <form onSubmit={submit} className="mt-8 space-y-4" data-testid="careers-form">
-              <input data-testid="careers-name" required placeholder="Full name *" className="tmp-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-              <input data-testid="careers-email" required type="email" placeholder="Email *" className="tmp-input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
-              <input data-testid="careers-phone" placeholder="Phone" className="tmp-input" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-              <input data-testid="careers-portfolio" placeholder="Portfolio / LinkedIn / Resume URL" className="tmp-input" value={form.portfolio} onChange={e => setForm({...form, portfolio: e.target.value})} />
-              <textarea data-testid="careers-message" placeholder="Why TMP? What have you scaled before?" className="tmp-input min-h-[140px]" value={form.message} onChange={e => setForm({...form, message: e.target.value})} />
-              <button type="submit" disabled={submitting} className="btn-primary pulse-glow" data-testid="careers-submit">{submitting ? "Sending..." : <>Apply Now <ArrowRight size={16} /></>}</button>
-            </form>
-          ) : (
-            <div className="mt-8 border border-[#FF5A1F]/40 bg-[#FF5A1F]/10 rounded-xl p-8" data-testid="careers-success">
-              <CheckCircle2 className="text-[#FF5A1F]" size={28} />
-              <p className="mt-3 text-xl font-medium text-white">Application received.</p>
-              <p className="mt-2 text-sm text-zinc-300">If your background aligns, we'll reach out within 5 business days.</p>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Client component for interactive roles + application form */}
+      <CareersApplicationForm roles={allRoles} />
     </div>
   );
 }
