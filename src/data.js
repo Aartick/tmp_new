@@ -16,14 +16,14 @@ export const SITE = {
 };
 
 export const MARKETPLACES = [
-  { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
-  { name: "Flipkart", logo: "https://upload.wikimedia.org/wikipedia/commons/5/5d/Flipkart_logo.svg" },
+  { name: "Amazon", logo: "/logos/amazon.webp" },
+  { name: "Flipkart", logo: "/logos/flipkart.svg" },
   { name: "Meesho", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Meesho_Logo_New.png" },
-  { name: "Nykaa", logo: "https://upload.wikimedia.org/wikipedia/commons/9/95/Nykaa_New_Logo.svg" },
-  { name: "Myntra", logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Myntra_logo.png" },
-  { name: "Blinkit", logo: "https://upload.wikimedia.org/wikipedia/commons/1/13/Blinkit-yellow-rgb.png" },
-  { name: "Zepto", logo: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Zepto_Logo.svg" },
-  { name: "Instamart", logo: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Swiggy_logo.svg" },
+  { name: "Nykaa", logo: "/logos/nykaa.png" },
+  { name: "Myntra", logo: "/logos/myntra.svg" },
+  { name: "Blinkit", logo: "/logos/blinkit.webp" },
+  { name: "Zepto", logo: "/logos/zepto.png" },
+  { name: "Instamart", logo: "/logos/instamart.webp" },
 ];
 
 export const METRICS = [
