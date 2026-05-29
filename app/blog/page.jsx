@@ -1,24 +1,32 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useParams } from 'next/navigation';
+import React from "react";
 import Link from 'next/link';
-import axios from "axios";
 import { ArrowUpRight } from "lucide-react";
+import { getDb } from "@/lib/mongodb";
 
-const API = `/api`;
+export const metadata = {
+  title: "Field Notes & Growth Teardowns | The Marketplace Peeps",
+  description: "What we've learned from scaling D2C brands across Amazon, Flipkart and quick commerce — written for operators.",
+};
 
-export default function BlogList() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    axios.get(`${API}/blog`).then(r => setPosts(r.data.posts)).finally(() => setLoading(false));
-  }, []);
+export default async function BlogList() {
+  let posts = [];
+  try {
+    const db = await getDb();
+    posts = await db.collection("blog")
+      .find({ published: true }, { projection: { _id: 0, content: 0 } })
+      .sort({ created_at: -1 })
+      .limit(100)
+      .toArray();
+  } catch (err) {
+    console.error("Failed to fetch blog list in SSR:", err);
+  }
+
   return (
     <div className="pt-28 lg:pt-32" data-testid="blog-page">
       <section className="py-16 relative overflow-hidden">
         <div className="hero-glow"></div>
         <div className="container-tmp relative">
-          <p className="tmp-label">Blog · Field Notes</p>
+          <p className="mono text-xs tracking-[0.22em] uppercase text-[#FF5A1F] mb-3">Blog · Field Notes</p>
           <h1 className="mt-3 text-5xl lg:text-7xl font-medium tracking-[-0.04em] leading-[1.02] max-w-4xl text-white">
             Marketplace growth, <span className="italic font-normal text-[#FF5A1F]">unfiltered.</span>
           </h1>
@@ -30,14 +38,22 @@ export default function BlogList() {
 
       <section className="pb-24 border-t border-[#1a1a1a] pt-16">
         <div className="container-tmp">
-          {loading ? <p className="text-zinc-500">Loading…</p> : (
+          {posts.length === 0 ? (
+            <p className="text-zinc-500 text-center py-10">No articles published yet. Check back soon!</p>
+          ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map(p => (
                 <Link href={`/blog/${p.slug}`} key={p.slug} className="tmp-card flex flex-col p-0 overflow-hidden" data-testid={`blog-card-${p.slug}`}>
-                  {p.cover_image && <div className="h-48 overflow-hidden bg-[#0a0a0a]"><img src={p.cover_image} alt={p.title} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition" /></div>}
+                  {p.cover_image && (
+                    <div className="h-48 overflow-hidden bg-[#0a0a0a]">
+                      <img src={p.cover_image} alt={p.title} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition" />
+                    </div>
+                  )}
                   <div className="p-7 flex flex-col flex-1">
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {p.tags?.slice(0,2).map(t => <span key={t} className="mono text-[10px] tracking-[0.15em] uppercase text-[#FF5A1F]">#{t}</span>)}
+                      {p.tags?.slice(0,2).map(t => (
+                        <span key={t} className="mono text-[10px] tracking-[0.15em] uppercase text-[#FF5A1F]">#{t}</span>
+                      ))}
                     </div>
                     <h3 className="text-xl font-medium tracking-tight text-white">{p.title}</h3>
                     <p className="mt-3 text-sm text-zinc-400 flex-1">{p.excerpt}</p>
@@ -53,29 +69,3 @@ export default function BlogList() {
     </div>
   );
 }
-
-function renderMarkdown(md) {
-  const lines = md.split("\n");
-  const out = [];
-  let listBuf = [];
-  const flushList = () => {
-    if (listBuf.length) {
-      out.push(<ul key={`l-${out.length}`} className="my-4 space-y-2 list-disc pl-6 text-zinc-300">{listBuf.map((li, i) => <li key={i} dangerouslySetInnerHTML={{ __html: li }} />)}</ul>);
-      listBuf = [];
-    }
-  };
-  const inline = (t) => t
-    .replace(/\*\*(.+?)\*\*/g, "<strong class='text-white'>$1</strong>")
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-[#FF5A1F] underline">$1</a>')
-    .replace(/\*(.+?)\*/g, "<em>$1</em>");
-  lines.forEach((l, i) => {
-    if (l.startsWith("### ")) { flushList(); out.push(<h3 key={i} className="text-xl font-medium mt-8 mb-3 tracking-tight text-white">{l.slice(4)}</h3>); }
-    else if (l.startsWith("## ")) { flushList(); out.push(<h2 key={i} className="text-2xl lg:text-3xl font-medium mt-10 mb-4 tracking-tight text-white">{l.slice(3)}</h2>); }
-    else if (/^\d+\.\s/.test(l) || l.startsWith("- ")) { listBuf.push(inline(l.replace(/^(\d+\.\s|-\s)/, ""))); }
-    else if (l.trim() === "") { flushList(); }
-    else { flushList(); out.push(<p key={i} className="my-4 text-zinc-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: inline(l) }} />); }
-  });
-  flushList();
-  return out;
-}
-

@@ -1,11 +1,46 @@
-"use client";
-import { useParams } from 'next/navigation';
+import React from "react";
 import Link from 'next/link';
 import { ArrowUpRight, TrendingUp, Target, Award, Clock } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from "recharts";
-import { CASE_STUDIES, NATURALTEIN_DATA, TESTIMONIALS } from "../../src/data";
+import { CASE_STUDIES, TESTIMONIALS } from "../../src/data";
+import { getDb } from "@/lib/mongodb";
+import NaturalteinChart from "@/components/NaturalteinChart";
 
-export default function CaseStudiesList() {
+export const metadata = {
+  title: "Case Studies & Client Success Stories | The Marketplace Peeps",
+  description: "Real revenue. Real numbers. Real brands who scaled with disciplined marketplace execution.",
+};
+
+export default async function CaseStudiesList() {
+  let dbStudies = [];
+  try {
+    const db = await getDb();
+    dbStudies = await db.collection("case_studies")
+      .find({ published: true })
+      .sort({ created_at: -1 })
+      .toArray();
+  } catch (err) {
+    console.error("Failed to query case studies in SSR:", err);
+  }
+
+  // Combine static and dynamic studies, avoiding duplicate slugs (custom ones take precedence!)
+  const allStudies = [...dbStudies];
+  const dynamicSlugs = new Set(dbStudies.map(s => s.slug));
+  
+  CASE_STUDIES.forEach(staticStudy => {
+    if (!dynamicSlugs.has(staticStudy.slug)) {
+      allStudies.push({
+        brand: staticStudy.brand,
+        slug: staticStudy.slug,
+        category: staticStudy.category,
+        headline: staticStudy.headline,
+        sub: staticStudy.sub,
+        cover_image: staticStudy.cover || "",
+        flagship: staticStudy.flagship || false,
+        published: true
+      });
+    }
+  });
+
   return (
     <div className="pt-28 lg:pt-32" data-testid="cases-page">
       <section className="py-16 relative overflow-hidden">
@@ -23,7 +58,7 @@ export default function CaseStudiesList() {
 
       <section className="pb-24 border-t border-[#1a1a1a] pt-16">
         <div className="container-tmp grid lg:grid-cols-3 gap-6">
-          {CASE_STUDIES.map((c) => (
+          {allStudies.map((c) => (
             <Link key={c.slug} href={`/case-studies/${c.slug}`} className="tmp-card flex flex-col" data-testid={`case-${c.slug}`}>
               {c.flagship ? (
                 <span className="sticker self-start mb-4">Flagship</span>
@@ -33,7 +68,7 @@ export default function CaseStudiesList() {
               <h3 className="text-3xl font-medium tracking-tight text-white">{c.brand}</h3>
               <p className="mt-2 text-sm mono uppercase tracking-[0.18em] text-zinc-500">{c.category}</p>
               <p className="mt-5 text-lg text-white font-medium flex-1">{c.headline}</p>
-              <p className="mt-2 text-sm text-zinc-400">{c.sub}</p>
+              <p className="mt-2 text-sm text-zinc-400">{c.sub || c.excerpt}</p>
               <span className="mt-6 inline-flex items-center gap-1 text-sm text-[#FF5A1F] link-underline">Read case study <ArrowUpRight size={14} /></span>
             </Link>
           ))}
@@ -43,8 +78,7 @@ export default function CaseStudiesList() {
   );
 }
 
-function NaturalteinCase() {
-  const peak = Math.max(...NATURALTEIN_DATA.map(d => d.revenue));
+export function NaturalteinCase() {
   return (
     <div className="pt-28 lg:pt-32" data-testid="case-naturaltein">
       <section className="py-16 relative overflow-hidden">
@@ -85,25 +119,9 @@ function NaturalteinCase() {
         <div className="container-tmp">
           <p className="tmp-label">Monthly Revenue · ₹ in Lakhs</p>
           <h2 className="mt-3 text-3xl lg:text-4xl font-medium tracking-tight text-white">14 months. One trajectory.</h2>
-          <div className="mt-8 h-[420px] bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={NATURALTEIN_DATA}>
-                <defs>
-                  <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FF5A1F" stopOpacity={0.6} />
-                    <stop offset="100%" stopColor="#FF5A1F" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="#1a1a1a" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" stroke="#71717a" fontSize={11} />
-                <YAxis stroke="#71717a" fontSize={11} tickFormatter={(v) => `₹${v}L`} />
-                <Tooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 8, color: "white" }} formatter={(v) => [`₹${v}L`, "Revenue"]} />
-                <ReferenceLine y={200} stroke="#52525b" strokeDasharray="3 3" label={{ value: "₹2Cr threshold", fill: "#71717a", fontSize: 10, position: "right" }} />
-                <Area type="monotone" dataKey="revenue" stroke="#FF5A1F" strokeWidth={2.5} fill="url(#grad)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="mt-8">
+            <NaturalteinChart />
           </div>
-          <p className="mt-4 mono text-[11px] tracking-[0.18em] uppercase text-zinc-500">Peak: ₹{peak.toFixed(0)}L · March 2026 · 3.8× engagement-start baseline</p>
         </div>
       </section>
 
@@ -137,64 +155,6 @@ function NaturalteinCase() {
         </div>
       </section>
 
-      <section className="py-20">
-        <div className="container-tmp">
-          <p className="tmp-label">Our Approach</p>
-          <h2 className="mt-3 text-3xl lg:text-4xl font-medium tracking-tight max-w-3xl text-white">A full-stack marketplace growth approach — no single lever.</h2>
-          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[
-              { t: "Amazon Marketplace Scaling", d: "Structured account architecture, seller health management, platform-specific growth planning." },
-              { t: "Ad Optimisation & ROAS", d: "Keyword harvesting, negative match discipline, bid strategy by funnel stage — ROAS held at 6–11.5×." },
-              { t: "Catalog & Listing Hygiene", d: "Systematic audit and reoptimisation of titles, bullets, backend search terms and category placement." },
-              { t: "A+ Content & Conversion", d: "Rebuilt A+ modules and brand storefront to improve conversion rate and reduce bounce." },
-              { t: "Inventory Planning", d: "Forecasting models aligned with demand trends, promotional cycles and seasonality — reducing stockouts." },
-              { t: "Profitable SKU Scaling", d: "Concentrated spend on highest-leverage SKUs by contribution margin and organic rank velocity." },
-            ].map((x, i) => (
-              <div key={i} className="tmp-card">
-                <p className="mono text-xs text-[#FF5A1F]">0{i+1}</p>
-                <p className="mt-2 font-medium text-lg text-white">{x.t}</p>
-                <p className="mt-2 text-sm text-zinc-400">{x.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 border-t border-[#1a1a1a]">
-        <div className="container-tmp">
-          <p className="tmp-label">Detailed Monthly Data</p>
-          <h2 className="mt-3 text-3xl lg:text-4xl font-medium tracking-tight text-white">The receipts.</h2>
-          <div className="mt-8 overflow-x-auto border border-[#1a1a1a] rounded-2xl">
-            <table className="w-full text-sm">
-              <thead className="bg-[#0a0a0a] text-zinc-300 mono text-xs uppercase tracking-[0.18em]">
-                <tr>
-                  <th className="text-left py-4 px-4">Month</th>
-                  <th className="text-right py-4 px-4">Total Revenue (₹)</th>
-                  <th className="text-right py-4 px-4">Ad Spend (₹)</th>
-                  <th className="text-right py-4 px-4">Ad Sales (₹)</th>
-                  <th className="text-right py-4 px-4">ROAS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {NATURALTEIN_DATA.map((r, i) => {
-                  const highlight = r.revenue >= 200;
-                  return (
-                    <tr key={i} className={`border-t border-[#1a1a1a] ${highlight ? "bg-[#FF5A1F]/5" : ""}`}>
-                      <td className="py-3 px-4 font-medium text-white">{r.month}</td>
-                      <td className="py-3 px-4 text-right tabular-nums text-zinc-300">{(r.revenue * 100000).toLocaleString("en-IN")}</td>
-                      <td className="py-3 px-4 text-right tabular-nums text-zinc-300">{(r.adSpend * 100000).toLocaleString("en-IN")}</td>
-                      <td className="py-3 px-4 text-right tabular-nums text-zinc-300">{(r.adSales * 100000).toLocaleString("en-IN")}</td>
-                      <td className="py-3 px-4 text-right tabular-nums font-medium text-[#FF5A1F]">{r.roas}×</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-4 mono text-[11px] tracking-[0.18em] uppercase text-zinc-500">Highlighted rows: months exceeding ₹2 Cr in revenue · All figures rounded.</p>
-        </div>
-      </section>
-
       <section className="py-20 border-t border-[#1a1a1a]">
         <div className="container-tmp max-w-4xl">
           <p className="mono text-[11px] tracking-[0.22em] uppercase text-[#FF5A1F]">In the founder's words</p>
@@ -211,25 +171,48 @@ function NaturalteinCase() {
   );
 }
 
-function GenericCase({ slug }) {
+export function GenericCase({ slug, brand, category, headline, sub, cover_image, content }) {
+  // Use either dynamic database variables or fallback static mapping
   const c = CASE_STUDIES.find(x => x.slug === slug);
-  const t = TESTIMONIALS.find(x => x.brand.toLowerCase().includes(c?.brand.toLowerCase().split(' ')[0] || ""));
-  if (!c) return <div className="pt-32 container-tmp text-zinc-400"><p>Case not found.</p></div>;
+  const displayBrand = brand || c?.brand || "Brand Case Study";
+  const displayCategory = category || c?.category || "E-commerce Strategy";
+  const displayHeadline = headline || c?.headline || "Proven Marketplace Scaling";
+  const displaySub = sub || c?.sub || "Disciplined scaling with strong, profit-first returns.";
+  const displayCover = cover_image || c?.cover || "";
+  
+  const t = TESTIMONIALS.find(x => x.brand.toLowerCase().includes(displayBrand.toLowerCase().split(' ')[0] || ""));
+
   return (
     <div className="pt-28 lg:pt-32" data-testid={`case-${slug}`}>
       <section className="py-16 relative overflow-hidden">
         <div className="hero-glow"></div>
         <div className="container-tmp relative">
           <Link href="/case-studies" className="text-sm text-zinc-500 hover:text-[#FF5A1F]">← All case studies</Link>
-          <p className="mt-6 mono text-[11px] tracking-[0.22em] uppercase text-zinc-500">{c.category}</p>
-          <h1 className="mt-3 text-5xl lg:text-7xl font-medium tracking-[-0.04em] leading-[1.02] text-white">{c.brand}</h1>
-          <p className="mt-5 text-2xl lg:text-3xl font-medium text-zinc-200 max-w-3xl tracking-tight">{c.headline}</p>
-          <p className="mt-4 text-lg text-zinc-400 max-w-2xl">{c.sub}</p>
+          <p className="mt-6 mono text-[11px] tracking-[0.22em] uppercase text-zinc-500">{displayCategory}</p>
+          <h1 className="mt-3 text-5xl lg:text-7xl font-medium tracking-[-0.04em] leading-[1.02] text-white">{displayBrand}</h1>
+          <p className="mt-5 text-2xl lg:text-3xl font-medium text-zinc-200 max-w-3xl tracking-tight">{displayHeadline}</p>
+          <p className="mt-4 text-lg text-zinc-400 max-w-2xl">{displaySub}</p>
         </div>
       </section>
 
+      {displayCover && (
+        <section className="pb-10 container-tmp">
+          <img src={displayCover} alt={displayBrand} className="w-full max-h-[500px] object-cover rounded-2xl border border-[#1a1a1a]" />
+        </section>
+      )}
+
+      {content && (
+        <section className="py-12 border-t border-[#1a1a1a]">
+          <div className="container-tmp max-w-3xl text-zinc-300 leading-relaxed text-lg space-y-6">
+            {content.split('\n\n').map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
+      )}
+
       {t && (
-        <section className="py-20 border-y border-[#1a1a1a]">
+        <section className="py-20 border-y border-[#1a1a1a] bg-[#0a0a0a]">
           <div className="container-tmp max-w-4xl">
             <p className="mono text-[11px] tracking-[0.22em] uppercase text-[#FF5A1F]">{t.metric}</p>
             <p className="mt-6 text-2xl lg:text-3xl leading-snug font-medium tracking-tight text-white">"{t.quote}"</p>
@@ -243,10 +226,9 @@ function GenericCase({ slug }) {
 
       <section className="py-20">
         <div className="container-tmp">
-          <Link href="/case-studies/naturaltein" className="link-underline text-[#FF5A1F]">Want a deep-dive case study? → Read Naturaltein</Link>
+          <Link href="/case-studies/naturaltein" className="link-underline text-[#FF5A1F] text-lg font-medium">Want a deep-dive case study? → Read Naturaltein</Link>
         </div>
       </section>
     </div>
   );
 }
-
