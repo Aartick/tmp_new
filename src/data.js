@@ -16,14 +16,13 @@ export const SITE = {
 };
 
 export const MARKETPLACES = [
-  { name: "Amazon", logo: "/logos/amazon.webp" },
   { name: "Flipkart", logo: "/logos/flipkart.svg" },
-  { name: "Meesho", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Meesho_Logo_New.png" },
-  { name: "Nykaa", logo: "/logos/nykaa.png" },
+  { name: "Amazon", logo: "/logos/amazon.svg" },
   { name: "Myntra", logo: "/logos/myntra.svg" },
-  { name: "Blinkit", logo: "/logos/blinkit.webp" },
-  { name: "Zepto", logo: "/logos/zepto.png" },
+  { name: "Nykaa", logo: "/logos/nykaa.png" },
   { name: "Instamart", logo: "/logos/instamart.webp" },
+  { name: "Zepto", logo: "/logos/zepto.png" },
+  { name: "Blinkit", logo: "/logos/blinkit.webp" },
 ];
 
 export const METRICS = [

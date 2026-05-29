@@ -10,9 +10,19 @@ export function MarketplaceStrip() {
     <section className="border-y border-[#1a1a1a] bg-[#0a0a0a] py-8 overflow-hidden" data-testid="marketplace-strip">
       <Marquee gradient gradientColor="#0a0a0a" gradientWidth={120} speed={45} pauseOnHover>
         {[...MARKETPLACES, ...MARKETPLACES, ...MARKETPLACES].map((m, i) => (
-          <div key={i} className="flex items-center gap-3 mx-12 opacity-60 hover:opacity-100 transition">
-            <img src={m.logo} alt={m.name} className="h-8 w-auto object-contain" style={{ maxWidth: 130, filter: "brightness(1.15) contrast(0.9)" }} />
-            <span className="hidden md:inline mono text-xs tracking-[0.18em] uppercase text-zinc-500">{m.name}</span>
+          <div 
+            key={i} 
+            className="group flex items-center gap-4 mx-12 cursor-pointer"
+          >
+            <img 
+              src={m.logo} 
+              alt={m.name} 
+              className="h-7 w-auto object-contain filter grayscale brightness-[2.2] contrast-[0.85] opacity-60 group-hover:grayscale-0 group-hover:brightness-100 group-hover:contrast-100 group-hover:opacity-100 transition duration-300" 
+              style={{ maxWidth: 120 }} 
+            />
+            <span className="hidden md:inline mono text-xs tracking-[0.18em] uppercase text-zinc-500 group-hover:text-white transition duration-300">
+              {m.name}
+            </span>
           </div>
         ))}
       </Marquee>
