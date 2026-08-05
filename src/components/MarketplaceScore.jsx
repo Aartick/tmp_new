@@ -155,7 +155,7 @@ export default function MarketplaceScore({ onLeadCapture }) {
           <input required placeholder="Your name" className="tmp-input" value={contact.name} onChange={e => setContact({...contact, name: e.target.value})} data-testid="score-name" />
           <input required type="email" placeholder="Work email" className="tmp-input" value={contact.email} onChange={e => setContact({...contact, email: e.target.value})} data-testid="score-email" />
           <button type="submit" disabled={submitting} className="btn-primary w-full justify-center pulse-glow" data-testid="score-submit">
-            {submitting ? "Calculating..." : <>Show My Score <ArrowRight size={16} /></>}
+            {submitting ? "Calculating..." : <>Submit <ArrowRight size={16} /></>}
           </button>
         </form>
       </div>

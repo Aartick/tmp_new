@@ -9,22 +9,34 @@ export function MarketplaceStrip() {
   return (
     <section className="border-y border-[#1a1a1a] bg-[#0a0a0a] py-8 overflow-hidden" data-testid="marketplace-strip">
       <Marquee gradient gradientColor="#0a0a0a" gradientWidth={120} speed={45} pauseOnHover>
-        {[...MARKETPLACES, ...MARKETPLACES, ...MARKETPLACES].map((m, i) => (
-          <div 
-            key={i} 
-            className="group flex items-center gap-4 mx-12 cursor-pointer"
-          >
-            <img 
-              src={m.logo} 
-              alt={m.name} 
-              className="h-7 w-auto object-contain filter grayscale brightness-[2.2] contrast-[0.85] opacity-60 group-hover:grayscale-0 group-hover:brightness-100 group-hover:contrast-100 group-hover:opacity-100 transition duration-300" 
-              style={{ maxWidth: 120 }} 
-            />
-            <span className="hidden md:inline mono text-xs tracking-[0.18em] uppercase text-zinc-500 group-hover:text-white transition duration-300">
-              {m.name}
-            </span>
-          </div>
-        ))}
+        {[...MARKETPLACES, ...MARKETPLACES, ...MARKETPLACES].map((m, i) => {
+          const heightClass = {
+            Flipkart: "h-10",
+            Instamart: "h-11",
+            Blinkit: "h-[34px]",
+            Amazon: "h-7",
+            Myntra: "h-9",
+            Nykaa: "h-9",
+            Zepto: "h-7"
+          }[m.name] || "h-7";
+
+          return (
+            <div 
+              key={i} 
+              className="group flex items-center gap-4 mx-12 cursor-pointer"
+            >
+              <img 
+                src={m.logo} 
+                alt={m.name} 
+                className={`${heightClass} w-auto object-contain filter grayscale brightness-[2.2] contrast-[0.85] opacity-60 group-hover:grayscale-0 group-hover:brightness-100 group-hover:contrast-100 group-hover:opacity-100 transition duration-300`} 
+                style={{ maxWidth: 120 }} 
+              />
+              <span className="hidden md:inline mono text-xs tracking-[0.18em] uppercase text-zinc-500 group-hover:text-white transition duration-300">
+                {m.name}
+              </span>
+            </div>
+          );
+        })}
       </Marquee>
     </section>
   );

@@ -55,7 +55,7 @@ export default function InlineLeadForm({ onSuccess }) {
       </div>
       {err && <p className="mt-2 text-xs text-red-400" data-testid="inline-err">{err}</p>}
       <button type="submit" disabled={submitting} className="btn-primary w-full justify-center mt-3 pulse-glow" data-testid="inline-submit">
-        {submitting ? "Sending..." : <>Get my conversion score <ArrowRight size={16} /></>}
+        {submitting ? "Sending..." : <>Book an audit <ArrowRight size={16} /></>}
       </button>
       <p className="mt-3 text-[11px] text-zinc-500 text-center">No obligation · 100% transparent · Reply within 24h</p>
     </form>

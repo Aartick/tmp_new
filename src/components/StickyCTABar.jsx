@@ -31,7 +31,7 @@ export default function StickyCTABar({ onClick }) {
       <div className="flex items-center gap-3 min-w-0">
         <span className="sticker hidden sm:inline-flex"><Sparkles size={11} /> Free</span>
         <div className="min-w-0">
-          <p className="text-white font-medium truncate text-sm sm:text-base">Get your marketplace conversion score in 24h.</p>
+          <p className="text-white font-medium truncate text-sm sm:text-base">Get your marketplace audit in 24h.</p>
           <p className="text-zinc-400 text-xs hidden sm:block">No obligation. Trusted by 80+ D2C brands.</p>
         </div>
       </div>

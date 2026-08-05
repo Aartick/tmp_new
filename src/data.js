@@ -19,10 +19,10 @@ export const MARKETPLACES = [
   { name: "Flipkart", logo: "/logos/flipkart.svg" },
   { name: "Amazon", logo: "/logos/amazon.svg" },
   { name: "Myntra", logo: "/logos/myntra.svg" },
-  { name: "Nykaa", logo: "/logos/nykaa.png" },
-  { name: "Instamart", logo: "/logos/instamart.webp" },
-  { name: "Zepto", logo: "/logos/zepto.png" },
-  { name: "Blinkit", logo: "/logos/blinkit.webp" },
+  { name: "Nykaa", logo: "/logos/nykaa.svg" },
+  { name: "Instamart", logo: "/logos/instamart.svg" },
+  { name: "Zepto", logo: "/logos/zepto.svg" },
+  { name: "Blinkit", logo: "/logos/blinkit.svg" },
 ];
 
 export const METRICS = [
@@ -179,8 +179,7 @@ export const FOUNDERS = [
   {
     name: "Himanshu Singh Bhandari",
     shortName: "Himanshu",
-    role: "Founder & CEO",
-    tagline: "Marketplace Growth Strategist",
+    role: "Co-Founder",
     bio: "Marketplace Growth Strategist with expertise in scaling revenue-driven brands across Amazon, Flipkart & quick-commerce platforms. Specialized in PPC, profitability optimization, revenue growth metrics, and performance-led marketplace scaling.",
     quote: "We don't sell campaigns. We sell systems that compound.",
     expertise: [
@@ -191,13 +190,12 @@ export const FOUNDERS = [
       "Ecommerce Operations",
     ],
     linkedin: "https://www.linkedin.com/in/himanshu-singh-bhandari-728397238/",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+    image: "/founder-images/himanshu.png",
   },
   {
     name: "Divya Chaturvedi",
     shortName: "Divya",
-    role: "Founder & CEO",
-    tagline: "Marketplace Operations Strategist",
+    role: "Co-Founder",
     bio: "Marketplace Operations Strategist with a strong problem-solving mindset and deep understanding of marketplace ecosystems. Skilled in identifying revenue bottlenecks, optimizing backend operations, tracking emerging trends, and driving operational excellence across digital commerce platforms.",
     quote: "Execution is the only real moat — and we obsess over it.",
     expertise: [
@@ -208,7 +206,7 @@ export const FOUNDERS = [
       "Catalog and Listing Optimisation",
     ],
     linkedin: "https://www.linkedin.com/in/divya-chaturvedi-ecommerce/",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+    image: "/founder-images/divya.png",
   },
 ];
 

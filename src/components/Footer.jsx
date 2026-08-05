@@ -16,19 +16,31 @@ export default function Footer() {
               Trusted by 80+ D2C brands across Amazon, Flipkart, Tata 1mg & quick commerce.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              {MARKETPLACES.map(m => (
-                <div 
-                  key={m.name} 
-                  className="group/logo flex items-center justify-center h-12 w-[110px] px-3 border border-[#1a1a1a] rounded-xl bg-[#0a0a0a] hover:border-[#FF5A1F]/40 hover:bg-[#0f0f0f]/80 transition duration-300"
-                  title={m.name}
-                >
-                  <img 
-                    src={m.logo} 
-                    alt={m.name} 
-                    className="h-5 max-w-full object-contain filter grayscale brightness-[2.5] contrast-[0.8] opacity-65 group-hover/logo:grayscale-0 group-hover/logo:brightness-100 group-hover/logo:contrast-100 group-hover/logo:opacity-100 transition duration-300" 
-                  />
-                </div>
-              ))}
+              {MARKETPLACES.map(m => {
+                const heightClass = {
+                  Flipkart: "h-[28px]",
+                  Instamart: "h-[30px]",
+                  Blinkit: "h-[26px]",
+                  Amazon: "h-[20px]",
+                  Myntra: "h-[24px]",
+                  Nykaa: "h-[24px]",
+                  Zepto: "h-[20px]"
+                }[m.name] || "h-5";
+
+                return (
+                  <div 
+                    key={m.name} 
+                    className="group/logo flex items-center justify-center h-12 w-[110px] px-3 border border-[#1a1a1a] rounded-xl bg-[#0a0a0a] hover:border-[#FF5A1F]/40 hover:bg-[#0f0f0f]/80 transition duration-300"
+                    title={m.name}
+                  >
+                    <img 
+                      src={m.logo} 
+                      alt={m.name} 
+                      className={`${heightClass} max-w-full object-contain filter grayscale brightness-[2.5] contrast-[0.8] opacity-65 group-hover/logo:grayscale-0 group-hover/logo:brightness-100 group-hover/logo:contrast-100 group-hover/logo:opacity-100 transition duration-300`} 
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 

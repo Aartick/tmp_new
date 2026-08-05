@@ -52,7 +52,7 @@ export async function GET() {
         excerpt: "Stop chasing ROAS targets. Start fixing the system that produces them.",
         content: "## The ROAS Trap\n\nEvery agency promises a ROAS number. 5x. 7x. 10x.\n\nHere's the truth: **ROAS is not a goal. It's a consequence.**\n\nYou get great ROAS when:\n- Your listings convert above category average\n- Your keywords match real buyer intent\n- Your reviews build trust at first glance\n- Your operations don't run out of stock during peak campaigns\n\nFix the system. ROAS follows.\n\n### The TMP Framework\n\nWe don't optimize for ROAS. We optimize for the *inputs* that produce it:\n- Listing conversion rate\n- Keyword-to-product relevance score\n- Review velocity & rating floor\n- Inventory days-of-cover\n\nDo that, and ROAS becomes boringly predictable.",
         cover_image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-        author: "Divya Singh Chaturvedi",
+        author: "Divya Chaturvedi",
         tags: ["Strategy", "Ads", "ROAS"],
         published: true,
       },

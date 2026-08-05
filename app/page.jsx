@@ -328,7 +328,6 @@ export default function Home() {
                   <div className="min-w-0">
                     <h3 className="text-2xl font-medium tracking-tight text-white">{f.name}</h3>
                     <p className="text-sm text-zinc-500">{f.role}</p>
-                    <p className="text-sm text-[#FF5A1F] mt-1">{f.tagline}</p>
                   </div>
                 </div>
                 <div className="mt-6 border-l-2 border-[#FF5A1F] pl-4">
